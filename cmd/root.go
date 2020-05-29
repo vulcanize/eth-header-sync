@@ -29,26 +29,21 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	vRpc "github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/node"
+	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/eth"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/client"
+	vRpc "github.com/vulcanize/eth-header-sync/pkg/eth/converters/rpc"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/node"
 )
 
 var (
-	cfgFile              string
-	databaseConfig       config.Database
-	genConfig            config.Plugin
-	ipc                  string
-	queueRecheckInterval time.Duration
-	startingBlockNumber  int64
-	storageDiffsPath     string
-	recheckHeadersArg    bool
-	subCommand           string
-	logWithCommand       log.Entry
-	storageDiffsSource   string
+	cfgFile             string
+	databaseConfig      config.Database
+	ipc                 string
+	startingBlockNumber int64
+	subCommand          string
+	logWithCommand      log.Entry
 )
 
 const (
@@ -91,8 +86,6 @@ func initFuncs(cmd *cobra.Command, args []string) {
 
 func setViperConfigs() {
 	ipc = viper.GetString("client.ipcpath")
-	storageDiffsPath = viper.GetString("filesystem.storageDiffsPath")
-	storageDiffsSource = viper.GetString("storageDiffs.source")
 	databaseConfig = config.Database{
 		Name:     viper.GetString("database.name"),
 		Hostname: viper.GetString("database.hostname"),

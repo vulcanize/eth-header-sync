@@ -16,7 +16,7 @@
 
 package fakes
 
-import "github.com/vulcanize/vulcanizedb/pkg/eth/filters"
+import "github.com/vulcanize/eth-header-sync/pkg/eth/filters"
 
 type MockFilterRepository struct {
 }

@@ -21,12 +21,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore/postgres/repositories"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/fakes"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
-	"github.com/vulcanize/vulcanizedb/test_config"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore/postgres/repositories"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/fakes"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/test_config"
 )
 
 var _ = Describe("Checked Headers repository", func() {

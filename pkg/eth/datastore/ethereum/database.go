@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore/ethereum/level"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore/ethereum/level"
 )
 
 type Database interface {

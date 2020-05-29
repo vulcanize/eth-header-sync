@@ -20,9 +20,9 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore/postgres/repositories"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore/postgres/repositories"
 )
 
 func PopulateMissingHeaders(blockChain core.BlockChain, headerRepository datastore.HeaderRepository, startingBlockNumber int64) (int, error) {

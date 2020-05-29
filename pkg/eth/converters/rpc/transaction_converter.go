@@ -31,8 +31,8 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"golang.org/x/sync/errgroup"
 
-	vulcCommon "github.com/vulcanize/vulcanizedb/pkg/eth/converters/common"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	vulcCommon "github.com/vulcanize/eth-header-sync/pkg/eth/converters/common"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
 )
 
 type RPCTransactionConverter struct {

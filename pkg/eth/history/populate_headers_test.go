@@ -22,8 +22,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/fakes"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/history"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/fakes"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/history"
 )
 
 var _ = Describe("Populating headers", func() {

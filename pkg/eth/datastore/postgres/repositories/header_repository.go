@@ -19,12 +19,14 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 var ErrValidHeaderExists = errors.New("valid header already exists")
@@ -155,4 +157,77 @@ func (repository HeaderRepository) replaceHeader(header core.Header) (int64, err
 		return 0, err
 	}
 	return repository.InternalInsertHeader(header)
+}
+
+func (repository HeaderRepository) CreateHeaderSyncReceiptInTx(headerID, transactionID int64, receipt core.Receipt, tx *sqlx.Tx) (int64, error) {
+	var receiptID int64
+	addressID, getAddressErr := getOrCreateAddressInTransaction(tx, receipt.ContractAddress)
+	if getAddressErr != nil {
+		log.Error("createReceipt: Error getting address id: ", getAddressErr)
+		return receiptID, getAddressErr
+	}
+	err := tx.QueryRowx(`INSERT INTO public.header_sync_receipts
+               (header_id, transaction_id, contract_address_id, cumulative_gas_used, gas_used, state_root, status, tx_hash, rlp)
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			   ON CONFLICT (header_id, transaction_id) DO UPDATE
+			   SET (contract_address_id, cumulative_gas_used, gas_used, state_root, status, tx_hash, rlp) = ($3, $4::NUMERIC, $5::NUMERIC, $6, $7, $8, $9)
+               RETURNING id`,
+		headerID, transactionID, addressID, receipt.CumulativeGasUsed, receipt.GasUsed, receipt.StateRoot, receipt.Status, receipt.TxHash, receipt.Rlp).Scan(&receiptID)
+	if err != nil {
+		log.Error("header_repository: error inserting receipt: ", err)
+		return receiptID, err
+	}
+	return receiptID, err
+}
+
+func getOrCreateAddressInTransaction(tx *sqlx.Tx, address string) (int64, error) {
+	checksumAddress := getChecksumAddress(address)
+	hashedAddress := hexToKeccak256Hash(checksumAddress).Hex()
+
+	var addressID int64
+	getOrCreateErr := tx.Get(&addressID, getOrCreateAddressQuery, checksumAddress, hashedAddress)
+
+	return addressID, getOrCreateErr
+}
+
+const getOrCreateAddressQuery = `WITH addressId AS (
+			INSERT INTO addresses (address, hashed_address) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING id
+		)
+		SELECT id FROM addresses WHERE address = $1
+		UNION
+		SELECT id FROM addressId`
+
+func GetOrCreateAddress(db *postgres.DB, address string) (int64, error) {
+	checksumAddress := getChecksumAddress(address)
+	hashedAddress := hexToKeccak256Hash(checksumAddress).Hex()
+
+	var addressID int64
+	getOrCreateErr := db.Get(&addressID, getOrCreateAddressQuery, checksumAddress, hashedAddress)
+
+	return addressID, getOrCreateErr
+}
+
+func GetOrCreateAddressInTransaction(tx *sqlx.Tx, address string) (int64, error) {
+	checksumAddress := getChecksumAddress(address)
+	hashedAddress := hexToKeccak256Hash(checksumAddress).Hex()
+
+	var addressID int64
+	getOrCreateErr := tx.Get(&addressID, getOrCreateAddressQuery, checksumAddress, hashedAddress)
+
+	return addressID, getOrCreateErr
+}
+
+func GetAddressByID(db *postgres.DB, id int64) (string, error) {
+	var address string
+	getErr := db.Get(&address, `SELECT address FROM public.addresses WHERE id = $1`, id)
+	return address, getErr
+}
+
+func getChecksumAddress(address string) string {
+	stringAddressToCommonAddress := common.HexToAddress(address)
+	return stringAddressToCommonAddress.Hex()
+}
+
+func hexToKeccak256Hash(hex string) common.Hash {
+	return crypto.Keccak256Hash(common.FromHex(hex))
 }

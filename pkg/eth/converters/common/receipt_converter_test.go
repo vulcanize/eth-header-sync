@@ -25,8 +25,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	vulcCommon "github.com/vulcanize/vulcanizedb/pkg/eth/converters/common"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	vulcCommon "github.com/vulcanize/eth-header-sync/pkg/eth/converters/common"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
 )
 
 var _ = Describe("Conversion of GethReceipt to core.Receipt", func() {

@@ -19,9 +19,8 @@ package datastore
 import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/jmoiron/sqlx"
-	"github.com/vulcanize/vulcanizedb/libraries/shared/storage/utils"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/filters"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/filters"
 )
 
 type AddressRepository interface {
@@ -81,10 +80,6 @@ type FullSyncReceiptRepository interface {
 
 type HeaderSyncReceiptRepository interface {
 	CreateFullSyncReceiptInTx(blockID int64, receipt core.Receipt, tx *sqlx.Tx) (int64, error)
-}
-
-type StorageDiffRepository interface {
-	CreateStorageDiff(input utils.StorageDiffInput) (int64, error)
 }
 
 type WatchedEventRepository interface {

@@ -29,9 +29,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	vulcCommon "github.com/vulcanize/vulcanizedb/pkg/eth/converters/common"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/client"
+	vulcCommon "github.com/vulcanize/eth-header-sync/pkg/eth/converters/common"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
 )
 
 var ErrEmptyHeader = errors.New("empty header returned over RPC")

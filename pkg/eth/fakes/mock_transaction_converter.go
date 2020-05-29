@@ -18,7 +18,7 @@ package fakes
 
 import (
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
 )
 
 type MockTransactionConverter struct {

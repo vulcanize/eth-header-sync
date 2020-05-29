@@ -19,9 +19,9 @@ package rpc_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/converters/rpc"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/fakes"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/converters/rpc"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/fakes"
 )
 
 var _ = Describe("RPC transaction converter", func() {

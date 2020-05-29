@@ -25,8 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/client"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
 )
 
 type MockRPCClient struct {

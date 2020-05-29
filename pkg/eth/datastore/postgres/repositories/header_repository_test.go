@@ -26,10 +26,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore/postgres/repositories"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
-	"github.com/vulcanize/vulcanizedb/test_config"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore/postgres/repositories"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/test_config"
 )
 
 var _ = Describe("Block header repository", func() {
@@ -230,8 +230,7 @@ var _ = Describe("Block header repository", func() {
 				Rlp:               []byte{1, 2, 3},
 			}
 
-			receiptRepo := repositories.HeaderSyncReceiptRepository{}
-			_, receiptErr := receiptRepo.CreateHeaderSyncReceiptInTx(headerID, txId, receipt, tx)
+			_, receiptErr := repo.CreateHeaderSyncReceiptInTx(headerID, txId, receipt, tx)
 			Expect(receiptErr).ToNot(HaveOccurred())
 			commitErr := tx.Commit()
 			Expect(commitErr).ToNot(HaveOccurred())

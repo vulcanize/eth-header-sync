@@ -21,7 +21,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/vulcanize/vulcanizedb/pkg/eth/client"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/client"
 )
 
 type RPCClient interface {

@@ -19,7 +19,7 @@ package crypto_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/crypto"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/crypto"
 )
 
 var _ = Describe("Public key parser", func() {

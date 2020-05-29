@@ -18,8 +18,8 @@ package history
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/datastore"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/datastore"
 )
 
 type HeaderValidator struct {

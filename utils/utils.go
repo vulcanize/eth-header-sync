@@ -17,17 +17,10 @@
 package utils
 
 import (
-	"math/big"
-	"os"
-	"path/filepath"
-
-	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
-
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 func LoadPostgres(database config.Database, node core.Node) postgres.DB {
@@ -36,56 +29,4 @@ func LoadPostgres(database config.Database, node core.Node) postgres.DB {
 		logrus.Fatal("Error loading postgres: ", err)
 	}
 	return *db
-}
-
-func ReadAbiFile(abiFilepath string) string {
-	abiFilepath = AbsFilePath(abiFilepath)
-	abi, err := eth.ReadAbiFile(abiFilepath)
-	if err != nil {
-		logrus.Fatalf("Error reading ABI file at \"%s\"\n %v", abiFilepath, err)
-	}
-	return abi
-}
-
-func AbsFilePath(filePath string) string {
-	if !filepath.IsAbs(filePath) {
-		cwd, _ := os.Getwd()
-		filePath = filepath.Join(cwd, filePath)
-	}
-	return filePath
-}
-
-func GetAbi(abiFilepath string, contractHash string, network string) string {
-	var contractAbiString string
-	if abiFilepath != "" {
-		contractAbiString = ReadAbiFile(abiFilepath)
-	} else {
-		url := eth.GenURL(network)
-		etherscan := eth.NewEtherScanClient(url)
-		logrus.Printf("No ABI supplied. Retrieving ABI from Etherscan: %s", url)
-		contractAbiString, _ = etherscan.GetAbi(contractHash)
-	}
-	_, err := eth.ParseAbi(contractAbiString)
-	if err != nil {
-		logrus.Fatalln("Invalid ABI: ", err)
-	}
-	return contractAbiString
-}
-
-func RequestedBlockNumber(blockNumber *int64) *big.Int {
-	var _blockNumber *big.Int
-	if *blockNumber == -1 {
-		_blockNumber = nil
-	} else {
-		_blockNumber = big.NewInt(*blockNumber)
-	}
-	return _blockNumber
-}
-
-func RollbackAndLogFailure(tx *sqlx.Tx, txErr error, fieldName string) {
-	rollbackErr := tx.Rollback()
-	if rollbackErr != nil {
-		logrus.WithFields(logrus.Fields{"rollbackErr": rollbackErr, "txErr": txErr}).
-			Warnf("failed to rollback transaction after failing to insert %s", fieldName)
-	}
 }

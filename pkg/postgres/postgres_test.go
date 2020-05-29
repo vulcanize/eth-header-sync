@@ -26,10 +26,10 @@ import (
 	_ "github.com/lib/pq"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
-	"github.com/vulcanize/vulcanizedb/test_config"
+	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"github.com/vulcanize/eth-header-sync/test_config"
 )
 
 var _ = Describe("Postgres DB", func() {

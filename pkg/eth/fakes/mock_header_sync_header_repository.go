@@ -1,6 +1,6 @@
 package fakes
 
-import "github.com/vulcanize/vulcanizedb/pkg/eth/core"
+import "github.com/vulcanize/eth-header-sync/pkg/eth/core"
 
 type MockHeaderSyncHeaderRepository struct {
 }
