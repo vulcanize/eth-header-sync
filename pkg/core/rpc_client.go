@@ -14,19 +14,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package utils
+package core
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/vulcanize/eth-header-sync/pkg/config"
-	"github.com/vulcanize/eth-header-sync/pkg/core"
-	"github.com/vulcanize/eth-header-sync/pkg/postgres"
+	"context"
+
+	"github.com/ethereum/go-ethereum/rpc"
+
+	"github.com/vulcanize/eth-header-sync/pkg/client"
 )
 
-func LoadPostgres(database config.Database, node core.Node) postgres.DB {
-	db, err := postgres.NewDB(database, node)
-	if err != nil {
-		logrus.Fatal("Error loading postgres: ", err)
-	}
-	return *db
+type RPCClient interface {
+	CallContext(ctx context.Context, result interface{}, method string, args ...interface{}) error
+	BatchCall(batch []client.BatchElem) error
+	IpcPath() string
+	SupportedModules() (map[string]string, error)
+	Subscribe(namespace string, payloadChan interface{}, args ...interface{}) (*rpc.ClientSubscription, error)
 }

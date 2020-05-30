@@ -14,19 +14,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package utils
+package converter
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"encoding/json"
+	"strconv"
+
+	"github.com/ethereum/go-ethereum/core/types"
+
 	"github.com/vulcanize/eth-header-sync/pkg/core"
-	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
-func LoadPostgres(database config.Database, node core.Node) postgres.DB {
-	db, err := postgres.NewDB(database, node)
+type HeaderConverter struct{}
+
+func (converter HeaderConverter) Convert(gethHeader *types.Header, blockHash string) core.Header {
+	rawHeader, err := json.Marshal(gethHeader)
 	if err != nil {
-		logrus.Fatal("Error loading postgres: ", err)
+		panic(err)
 	}
-	return *db
+	coreHeader := core.Header{
+		Hash:        blockHash,
+		BlockNumber: gethHeader.Number.Int64(),
+		Raw:         rawHeader,
+		Timestamp:   strconv.FormatUint(gethHeader.Time, 10),
+	}
+	return coreHeader
 }

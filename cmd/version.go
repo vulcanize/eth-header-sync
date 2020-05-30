@@ -25,14 +25,14 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Prints the version of vulcanizeDB",
-	Long: `Use this command to fetch the version of vulcanizeDB
+	Short: "Prints the version of eth-header-sync",
+	Long: `Use this command to fetch the version of eth-header-sync
 
-Usage: ./vulcanizedb version`,
+Usage: ./eth-header-sync version`,
 	Run: func(cmd *cobra.Command, args []string) {
 		subCommand = cmd.CalledAs()
 		logWithCommand = *log.WithField("SubCommand", subCommand)
-		logWithCommand.Infof("VulcanizeDB version: %s", v.VersionWithMeta)
+		logWithCommand.Infof("eth-header-sync version: %s", v.VersionWithMeta)
 	},
 }
 

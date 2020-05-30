@@ -27,7 +27,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vulcanize/eth-header-sync/pkg/config"
-	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
 	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 	"github.com/vulcanize/eth-header-sync/test_config"
 )

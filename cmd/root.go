@@ -17,7 +17,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -29,12 +28,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/vulcanize/eth-header-sync/pkg/client"
 	"github.com/vulcanize/eth-header-sync/pkg/config"
-	"github.com/vulcanize/eth-header-sync/pkg/eth"
-	"github.com/vulcanize/eth-header-sync/pkg/eth/client"
-	vRpc "github.com/vulcanize/eth-header-sync/pkg/eth/converters/rpc"
-	"github.com/vulcanize/eth-header-sync/pkg/eth/core"
-	"github.com/vulcanize/eth-header-sync/pkg/eth/node"
+	"github.com/vulcanize/eth-header-sync/pkg/fetcher"
+	"github.com/vulcanize/eth-header-sync/pkg/node"
 )
 
 var (
@@ -123,10 +120,6 @@ func init() {
 	rootCmd.PersistentFlags().String("database-user", "", "database user")
 	rootCmd.PersistentFlags().String("database-password", "", "database password")
 	rootCmd.PersistentFlags().String("client-ipcPath", "", "location of geth.ipc file")
-	rootCmd.PersistentFlags().String("client-levelDbPath", "", "location of levelDb chaindata")
-	rootCmd.PersistentFlags().String("filesystem-storageDiffsPath", "", "location of storage diffs csv file")
-	rootCmd.PersistentFlags().String("storageDiffs-source", "csv", "where to get the state diffs: csv or geth")
-	rootCmd.PersistentFlags().String("exporter-name", "exporter", "name of exporter plugin")
 	rootCmd.PersistentFlags().String("log-level", log.InfoLevel.String(), "Log level (trace, debug, info, warn, error, fatal, panic")
 
 	viper.BindPFlag("logfile", rootCmd.PersistentFlags().Lookup("logfile"))
@@ -136,10 +129,6 @@ func init() {
 	viper.BindPFlag("database.user", rootCmd.PersistentFlags().Lookup("database-user"))
 	viper.BindPFlag("database.password", rootCmd.PersistentFlags().Lookup("database-password"))
 	viper.BindPFlag("client.ipcPath", rootCmd.PersistentFlags().Lookup("client-ipcPath"))
-	viper.BindPFlag("client.levelDbPath", rootCmd.PersistentFlags().Lookup("client-levelDbPath"))
-	viper.BindPFlag("filesystem.storageDiffsPath", rootCmd.PersistentFlags().Lookup("filesystem-storageDiffsPath"))
-	viper.BindPFlag("storageDiffs.source", rootCmd.PersistentFlags().Lookup("storageDiffs-source"))
-	viper.BindPFlag("exporter.fileName", rootCmd.PersistentFlags().Lookup("exporter-name"))
 	viper.BindPFlag("log.level", rootCmd.PersistentFlags().Lookup("log-level"))
 }
 
@@ -156,12 +145,11 @@ func initConfig() {
 	}
 }
 
-func getBlockChain() *eth.BlockChain {
+func getFetcher() *fetcher.Fetcher {
 	rpcClient, ethClient := getClients()
 	vdbEthClient := client.NewEthClient(ethClient)
 	vdbNode := node.MakeNode(rpcClient)
-	transactionConverter := vRpc.NewRPCTransactionConverter(ethClient)
-	return eth.NewBlockChain(vdbEthClient, rpcClient, vdbNode, transactionConverter)
+	return fetcher.NewFetcher(vdbEthClient, rpcClient, vdbNode)
 }
 
 func getClients() (client.RPCClient, *ethclient.Client) {
@@ -174,16 +162,4 @@ func getClients() (client.RPCClient, *ethclient.Client) {
 	ethClient := ethclient.NewClient(rawRPCClient)
 
 	return rpcClient, ethClient
-}
-
-func getWSClient() core.RPCClient {
-	wsRPCpath := viper.GetString("client.wsPath")
-	if wsRPCpath == "" {
-		logWithCommand.Fatal(errors.New("getWSClient() was called but no ws rpc path is provided"))
-	}
-	wsRPCClient, dialErr := rpc.Dial(wsRPCpath)
-	if dialErr != nil {
-		logWithCommand.Fatal(dialErr)
-	}
-	return client.NewRPCClient(wsRPCClient, wsRPCpath)
 }
