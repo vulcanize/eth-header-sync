@@ -14,19 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package utils
+package core
 
-import (
-	"github.com/sirupsen/logrus"
-	"github.com/vulcanize/eth-header-sync/pkg/config"
-	"github.com/vulcanize/eth-header-sync/pkg/core"
-	"github.com/vulcanize/eth-header-sync/pkg/postgres"
-)
-
-func LoadPostgres(database config.Database, node core.Node) postgres.DB {
-	db, err := postgres.NewDB(database, node)
-	if err != nil {
-		logrus.Fatal("Error loading postgres: ", err)
-	}
-	return *db
+type HeaderRepository interface {
+	CreateOrUpdateHeader(header Header) (int64, error)
+	GetHeader(blockNumber int64) (Header, error)
+	MissingBlockNumbers(startingBlockNumber, endingBlockNumber int64, nodeID string) ([]int64, error)
 }

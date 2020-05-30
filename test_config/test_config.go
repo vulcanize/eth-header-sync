@@ -19,12 +19,14 @@ package test_config
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vulcanize/vulcanizedb/pkg/config"
-	"github.com/vulcanize/vulcanizedb/pkg/eth/core"
-	"github.com/vulcanize/vulcanizedb/pkg/postgres"
-	"os"
+
+	"github.com/vulcanize/eth-header-sync/pkg/config"
+	"github.com/vulcanize/eth-header-sync/pkg/core"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 )
 
 var TestConfig *viper.Viper
@@ -40,7 +42,7 @@ func init() {
 func setTestConfig() {
 	TestConfig = viper.New()
 	TestConfig.SetConfigName("testing")
-	TestConfig.AddConfigPath("$GOPATH/src/github.com/vulcanize/vulcanizedb/environments/")
+	TestConfig.AddConfigPath("$GOPATH/src/github.com/vulcanize/eth-header-sync/environments/")
 	err := TestConfig.ReadInConfig()
 	if err != nil {
 		logrus.Fatal(err)
@@ -72,7 +74,7 @@ func setTestConfig() {
 
 func setABIPath() {
 	gp := os.Getenv("GOPATH")
-	ABIFilePath = gp + "/src/github.com/vulcanize/vulcanizedb/pkg/eth/testing/"
+	ABIFilePath = gp + "/src/github.com/vulcanize/eth-header-sync/pkg/eth/testing/"
 }
 
 func NewTestDB(node core.Node) *postgres.DB {
@@ -84,23 +86,9 @@ func NewTestDB(node core.Node) *postgres.DB {
 }
 
 func CleanTestDB(db *postgres.DB) {
-	db.MustExec("DELETE FROM addresses")
-	db.MustExec("DELETE FROM blocks")
-	db.MustExec("DELETE FROM checked_headers")
 	// can't delete from nodes since this function is called after the required node is persisted
 	db.MustExec("DELETE FROM goose_db_version")
-	db.MustExec("DELETE FROM header_sync_logs")
-	db.MustExec("DELETE FROM header_sync_receipts")
-	db.MustExec("DELETE FROM header_sync_transactions")
 	db.MustExec("DELETE FROM headers")
-	db.MustExec("DELETE FROM queued_storage")
-	db.MustExec("DELETE FROM storage_diff")
-}
-
-func CleanCheckedHeadersTable(db *postgres.DB, columnNames []string) {
-	for _, name := range columnNames {
-		db.MustExec("ALTER TABLE checked_headers DROP COLUMN IF EXISTS " + name)
-	}
 }
 
 // Returns a new test node, with the same ID
