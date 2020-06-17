@@ -14,7 +14,7 @@ RUN GCO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 
 # Second stage
 FROM alpine
-COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/vulcanizedb /app/vulcanizedb
+COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/eth-header-sync /app/eth-header-sync
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/environments/staging.toml /app/environments/
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/dockerfiles/startup_script.sh /app/
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/db/migrations/* /app/

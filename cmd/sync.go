@@ -36,7 +36,7 @@ var syncCmd = &cobra.Command{
 	Long: `Syncs VulcanizeDB with local ethereum node. Populates
 Postgres with block headers.
 
-./vulcanizedb sync --starting-block-number 0 --config public.toml
+./eth-header-sync sync --starting-block-number 0 --config public.toml
 
 Expects ethereum node to be running and requires a .toml config:
 

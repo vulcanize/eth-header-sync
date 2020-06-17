@@ -49,7 +49,7 @@ const (
 )
 
 var rootCmd = &cobra.Command{
-	Use:              "vulcanizedb",
+	Use:              "eth-header-sync",
 	PersistentPreRun: initFuncs,
 }
 
