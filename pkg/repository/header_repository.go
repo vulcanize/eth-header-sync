@@ -20,10 +20,6 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-
-	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/vulcanize/eth-header-sync/pkg/core"
@@ -32,14 +28,18 @@ import (
 
 var ErrValidHeaderExists = errors.New("valid header already exists")
 
+// HeaderRepository is the underlying type satisfying the core.HeaderRepository interface
 type HeaderRepository struct {
 	database *postgres.DB
 }
 
+// NewHeaderRepository returns a new HeaderRepository
 func NewHeaderRepository(database *postgres.DB) HeaderRepository {
 	return HeaderRepository{database: database}
 }
 
+// CreateOrUpdateHeader inserts a header model into the db
+// If there is already a header at the height, it is replaced if the hash is not the expected value
 func (repository HeaderRepository) CreateOrUpdateHeader(header core.Header) (int64, error) {
 	hash, err := repository.getHeaderHash(header)
 	if err != nil {
@@ -98,6 +98,7 @@ func (repository HeaderRepository) getHeaderHash(header core.Header) (string, er
 	return hash, err
 }
 
+// InternalInsertHeader inserts the provided header and returns its row id
 // Function is public so we can test insert being called for the same header
 // Can happen when concurrent processes are inserting headers
 // Otherwise should not occur since only called in CreateOrUpdateHeader
@@ -125,46 +126,4 @@ func (repository HeaderRepository) replaceHeader(header core.Header) (int64, err
 		return 0, err
 	}
 	return repository.InternalInsertHeader(header)
-}
-
-const getOrCreateAddressQuery = `WITH addressId AS (
-			INSERT INTO addresses (address, hashed_address) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING id
-		)
-		SELECT id FROM addresses WHERE address = $1
-		UNION
-		SELECT id FROM addressId`
-
-func GetOrCreateAddress(db *postgres.DB, address string) (int64, error) {
-	checksumAddress := getChecksumAddress(address)
-	hashedAddress := hexToKeccak256Hash(checksumAddress).Hex()
-
-	var addressID int64
-	getOrCreateErr := db.Get(&addressID, getOrCreateAddressQuery, checksumAddress, hashedAddress)
-
-	return addressID, getOrCreateErr
-}
-
-func GetOrCreateAddressInTransaction(tx *sqlx.Tx, address string) (int64, error) {
-	checksumAddress := getChecksumAddress(address)
-	hashedAddress := hexToKeccak256Hash(checksumAddress).Hex()
-
-	var addressID int64
-	getOrCreateErr := tx.Get(&addressID, getOrCreateAddressQuery, checksumAddress, hashedAddress)
-
-	return addressID, getOrCreateErr
-}
-
-func GetAddressByID(db *postgres.DB, id int64) (string, error) {
-	var address string
-	getErr := db.Get(&address, `SELECT address FROM public.addresses WHERE id = $1`, id)
-	return address, getErr
-}
-
-func getChecksumAddress(address string) string {
-	stringAddressToCommonAddress := common.HexToAddress(address)
-	return stringAddressToCommonAddress.Hex()
-}
-
-func hexToKeccak256Hash(hex string) common.Hash {
-	return crypto.Keccak256Hash(common.FromHex(hex))
 }

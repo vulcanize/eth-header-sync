@@ -30,34 +30,42 @@ type EthClient struct {
 	client *ethclient.Client
 }
 
+// NewEthClient return a new EthClient
 func NewEthClient(client *ethclient.Client) EthClient {
 	return EthClient{client: client}
 }
 
+// BlockByNumber fetches and returns the block for a given block number
 func (client EthClient) BlockByNumber(ctx context.Context, number *big.Int) (*types.Block, error) {
 	return client.client.BlockByNumber(ctx, number)
 }
 
+// CallContract calls the contract with the provided call msg and returns the hex byte value returned from the contract
 func (client EthClient) CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	return client.client.CallContract(ctx, msg, blockNumber)
 }
 
+// FilterLogs fetches the logs which conform to the provided filter query
 func (client EthClient) FilterLogs(ctx context.Context, q ethereum.FilterQuery) ([]types.Log, error) {
 	return client.client.FilterLogs(ctx, q)
 }
 
+// HeaderByNumber fetchers and returns the header for a given block number
 func (client EthClient) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	return client.client.HeaderByNumber(ctx, number)
 }
 
+// TransactionSender asks the node to return the sender address for a provided transaction
 func (client EthClient) TransactionSender(ctx context.Context, tx *types.Transaction, block common.Hash, index uint) (common.Address, error) {
 	return client.client.TransactionSender(ctx, tx, block, index)
 }
 
+// TransactionReceipt fetches the receipt that corresponds with the provided tx hash
 func (client EthClient) TransactionReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {
 	return client.client.TransactionReceipt(ctx, txHash)
 }
 
+// BalanceAt fetches the account (eth) balance for the provided account address and block number
 func (client EthClient) BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 	return client.client.BalanceAt(ctx, account, blockNumber)
 }

@@ -46,7 +46,7 @@ Expects ethereum node to be running and requires a .toml config:
   port = 5432
 
   [client]
-  ipcPath = "/Users/user/Library/Ethereum/geth.ipc"
+  rpcPath = "/Users/user/Library/Ethereum/geth.ipc"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		subCommand = cmd.CalledAs()

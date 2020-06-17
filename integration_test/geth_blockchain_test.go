@@ -33,9 +33,9 @@ var _ = Describe("Reading from the Geth blockchain", func() {
 	var fetch *fetcher.Fetcher
 
 	BeforeEach(func() {
-		rawRPCClient, err := rpc.Dial(test_config.TestClient.IPCPath)
+		rawRPCClient, err := rpc.Dial(test_config.TestClient.RPCPath)
 		Expect(err).NotTo(HaveOccurred())
-		rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.IPCPath)
+		rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.RPCPath)
 		ethClient := ethclient.NewClient(rawRPCClient)
 		blockChainClient := client.NewEthClient(ethClient)
 		node := node.MakeNode(rpcClient)

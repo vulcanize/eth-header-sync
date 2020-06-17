@@ -34,6 +34,7 @@ const (
 	DATABASE_MAX_CONN_LIFETIME    = "DATABASE_MAX_CONN_LIFETIME"
 )
 
+// Database is the config struct for the Postgres database
 type Database struct {
 	Hostname    string
 	Name        string
@@ -45,6 +46,7 @@ type Database struct {
 	MaxLifetime int
 }
 
+// DbConnectionString function to construct and return the db connection string from a Database config
 func DbConnectionString(dbConfig Database) string {
 	if len(dbConfig.User) > 0 && len(dbConfig.Password) > 0 {
 		return fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable",
@@ -57,6 +59,8 @@ func DbConnectionString(dbConfig Database) string {
 	return fmt.Sprintf("postgresql://%s:%d/%s?sslmode=disable", dbConfig.Hostname, dbConfig.Port, dbConfig.Name)
 }
 
+// Init inits the database config from env/config values
+// Precedence is env variables > cli flags > toml config values
 func (d *Database) Init() {
 	viper.BindEnv("database.name", DATABASE_NAME)
 	viper.BindEnv("database.hostname", DATABASE_HOSTNAME)

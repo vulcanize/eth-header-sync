@@ -22,6 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+// Header is the internal ethereum header type
 type Header struct {
 	ID          int64
 	BlockNumber int64 `db:"block_number"`
@@ -30,6 +31,7 @@ type Header struct {
 	Timestamp   string `db:"block_timestamp"`
 }
 
+// POAHeader is the internal POA ethereum header type
 type POAHeader struct {
 	ParentHash  common.Hash    `json:"parentHash"       gencodec:"required"`
 	UncleHash   common.Hash    `json:"sha3Uncles"       gencodec:"required"`

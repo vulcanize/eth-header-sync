@@ -35,6 +35,7 @@ var ErrEmptyHeader = errors.New("empty header returned over RPC")
 
 const MAX_BATCH_SIZE = 100
 
+// Fetcher is the underlying type which satisfies the core.Fetcher interface for go-ethereum
 type Fetcher struct {
 	ethClient       core.EthClient
 	headerConverter converter.HeaderConverter
@@ -42,6 +43,7 @@ type Fetcher struct {
 	rpcClient       core.RPCClient
 }
 
+// NewFetcher returns a new Fetcher
 func NewFetcher(ethClient core.EthClient, rpcClient core.RPCClient, node core.Node) *Fetcher {
 	return &Fetcher{
 		ethClient:       ethClient,
@@ -51,6 +53,7 @@ func NewFetcher(ethClient core.EthClient, rpcClient core.RPCClient, node core.No
 	}
 }
 
+// GetHeaderByNumber fetches the header for the provided block number
 func (fetcher *Fetcher) GetHeaderByNumber(blockNumber int64) (header core.Header, err error) {
 	logrus.Debugf("GetHeaderByNumber called with block %d", blockNumber)
 	if fetcher.node.NetworkID == string(core.KOVAN_NETWORK_ID) {
@@ -59,6 +62,7 @@ func (fetcher *Fetcher) GetHeaderByNumber(blockNumber int64) (header core.Header
 	return fetcher.getPOWHeader(blockNumber)
 }
 
+// GetHeadersByNumbers batch fetches all of the headers for the provided block numbers
 func (fetcher *Fetcher) GetHeadersByNumbers(blockNumbers []int64) (header []core.Header, err error) {
 	logrus.Debug("GetHeadersByNumbers called")
 	if fetcher.node.NetworkID == string(core.KOVAN_NETWORK_ID) {
@@ -67,6 +71,7 @@ func (fetcher *Fetcher) GetHeadersByNumbers(blockNumbers []int64) (header []core
 	return fetcher.getPOWHeaders(blockNumbers)
 }
 
+// LastBlock determines and returns the latest block number
 func (fetcher *Fetcher) LastBlock() (*big.Int, error) {
 	block, err := fetcher.ethClient.HeaderByNumber(context.Background(), nil)
 	if err != nil {
@@ -75,6 +80,7 @@ func (fetcher *Fetcher) LastBlock() (*big.Int, error) {
 	return block.Number, err
 }
 
+// Node returns the node info associated with this Fetcher
 func (fetcher *Fetcher) Node() core.Node {
 	return fetcher.node
 }

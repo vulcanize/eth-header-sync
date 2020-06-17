@@ -20,6 +20,7 @@ import (
 	"fmt"
 )
 
+// NodeType is an enum to represent different node types
 type NodeType int
 
 const (
@@ -33,6 +34,7 @@ const (
 	KOVAN_NETWORK_ID = 42
 )
 
+// Node holds params for the Ethereum client
 type Node struct {
 	GenesisBlock string
 	NetworkID    string

@@ -1,7 +1,7 @@
 FROM golang:alpine as builder
 RUN apk --update --no-cache add make git g++
 
-# Build statically linked vDB binary (wonky path because of Dep)
+# Build statically linked binary (wonky path because of Dep)
 RUN mkdir -p /go/src/github.com/vulcanize/eth-header-sync
 ADD . /go/src/github.com/vulcanize/eth-header-sync
 WORKDIR /go/src/github.com/vulcanize/eth-header-sync

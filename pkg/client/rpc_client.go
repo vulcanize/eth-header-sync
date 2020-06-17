@@ -27,7 +27,7 @@ import (
 // RPCClient is a wrapper around the geth RPC client
 type RPCClient struct {
 	client  *rpc.Client
-	ipcPath string
+	rpcPath string
 }
 
 // BatchElem is a struct to hold the elements of a BatchCall
@@ -39,10 +39,10 @@ type BatchElem struct {
 }
 
 // NewRPCClient creates a new RpcClient
-func NewRPCClient(client *rpc.Client, ipcPath string) RPCClient {
+func NewRPCClient(client *rpc.Client, rpcPath string) RPCClient {
 	return RPCClient{
 		client:  client,
-		ipcPath: ipcPath,
+		rpcPath: rpcPath,
 	}
 }
 
@@ -57,14 +57,17 @@ func (client RPCClient) CallContext(ctx context.Context, result interface{}, met
 	return client.client.CallContext(ctx, result, method, args...)
 }
 
-func (client RPCClient) IpcPath() string {
-	return client.ipcPath
+// RPCPath returns the RCClient's rpc path
+func (client RPCClient) RPCPath() string {
+	return client.rpcPath
 }
 
+// SupportedModules returns the supported modules
 func (client RPCClient) SupportedModules() (map[string]string, error) {
 	return client.client.SupportedModules()
 }
 
+// BatchCall makes a batch RPC call to the node
 func (client RPCClient) BatchCall(batch []BatchElem) error {
 	var rpcBatch []rpc.BatchElem
 	for _, batchElem := range batch {

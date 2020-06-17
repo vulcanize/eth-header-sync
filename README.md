@@ -1,5 +1,6 @@
 # eth-header-sync
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/vulcanize/eth-header-sync)](https://goreportcard.com/report/github.com/vulcanize/eth-header-sync)
 
 > Tool for syncing Ethereum headers into a Postgres database
 
@@ -14,7 +15,7 @@
 Ethereum data is natively stored in key-value databases such as leveldb (geth) and rocksdb (openethereum).
 Storage of Ethereum in these KV databases is optimized for scalability and ideal for the purposes of consensus,
 it is not necessarily ideal for use by external applications. Moving Ethereum data into a relational database can provide
-many advantages to downstream data consumers.
+many advantages for downstream data consumers.
 
 This tool syncs Ethereum headers in Postgres. Addtionally, it validates headers from the last 15 blocks to ensure the data is up to date and
 handles chain reorgs by validating the most recent blocks' hashes and upserting invalid header records.
@@ -80,8 +81,8 @@ localhost. To allow access on Ubuntu, set localhost connections via hostname, ip
 
 ### Configuring a synced Ethereum node
 - To use a local Ethereum node, copy `environments/public.toml.example` to
-  `environments/public.toml` and update the `ipcPath` in the config file.
-  - `ipcPath` should match the local node's IPC filepath:
+  `environments/public.toml` and update the `rpcPath` in the config file.
+  - `rpcPath` should match the local node's IPC filepath:
       - For Geth:
         - The IPC file is called `geth.ipc`.
         - The geth IPC file path is printed to the console when you start geth.
@@ -97,7 +98,7 @@ localhost. To allow access on Ubuntu, set localhost connections via hostname, ip
           - Mac: `<full home path>/Library/Application\ Support/io.parity.ethereum/`
           - Linux: `<full home path>/local/share/io.parity.ethereum/`
 
-- To use a remote Ethereum node, simply set the `ipcPath` in the config file to the HTTP RPC endpoint url for the remote node
+- To use a remote Ethereum node, simply set the `rpcPath` in the config file to the HTTP RPC endpoint url for the remote node
     - The default HTTP port # for Geth and OpenEthereum is 8545
 
 ## Usage
@@ -114,7 +115,7 @@ The config file must be formatted as follows, and should contain an RPC path to 
     port     = 5432
 
 [client]
-    ipcPath  = "http://127.0.0.1:8545"
+    rpcPath  = "http://127.0.0.1:8545"
 ```
 
 

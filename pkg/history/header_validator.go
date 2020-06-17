@@ -21,12 +21,14 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
+// HeaderValidator is the type reponsible for validating headers
 type HeaderValidator struct {
 	fetcher          core.Fetcher
 	headerRepository core.HeaderRepository
 	windowSize       int
 }
 
+// NewHeaderValidator returns a new HeaderValidator
 func NewHeaderValidator(fetcher core.Fetcher, repository core.HeaderRepository, windowSize int) HeaderValidator {
 	return HeaderValidator{
 		fetcher:          fetcher,
@@ -35,6 +37,7 @@ func NewHeaderValidator(fetcher core.Fetcher, repository core.HeaderRepository, 
 	}
 }
 
+// ValidateHeaders validates headers at the head, returning the validation window used
 func (validator HeaderValidator) ValidateHeaders() (ValidationWindow, error) {
 	window, err := MakeValidationWindow(validator.fetcher, validator.windowSize)
 	if err != nil {

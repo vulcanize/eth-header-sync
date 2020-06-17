@@ -16,6 +16,7 @@
 
 package core
 
+// HeaderRepository is the top level interface for the Postgres header repository
 type HeaderRepository interface {
 	CreateOrUpdateHeader(header Header) (int64, error)
 	GetHeader(blockNumber int64) (Header, error)

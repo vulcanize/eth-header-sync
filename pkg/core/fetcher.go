@@ -20,6 +20,7 @@ import (
 	"math/big"
 )
 
+// Fetcher is a top level interface for fetching ethereum data
 type Fetcher interface {
 	GetHeaderByNumber(blockNumber int64) (Header, error)
 	GetHeadersByNumbers(blockNumbers []int64) ([]Header, error)

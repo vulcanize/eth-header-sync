@@ -98,7 +98,7 @@ var _ = Describe("Node Info", func() {
 
 	It("returns infura ID and client name for infura node", func() {
 		client := fakes.NewMockRPCClient()
-		client.SetIpcPath("infura/path")
+		client.SetRPCPath("infura/path")
 		n := node.MakeNode(client)
 		Expect(n.ID).To(Equal("infura"))
 		Expect(n.ClientName).To(Equal("infura"))
@@ -106,12 +106,12 @@ var _ = Describe("Node Info", func() {
 
 	It("returns local id and client name for Local node", func() {
 		client := fakes.NewMockRPCClient()
-		client.SetIpcPath("127.0.0.1")
+		client.SetRPCPath("127.0.0.1")
 		n := node.MakeNode(client)
 		Expect(n.ID).To(Equal("ganache"))
 		Expect(n.ClientName).To(Equal("ganache"))
 
-		client.SetIpcPath("localhost")
+		client.SetRPCPath("localhost")
 		n = node.MakeNode(client)
 		Expect(n.ID).To(Equal("ganache"))
 		Expect(n.ClientName).To(Equal("ganache"))

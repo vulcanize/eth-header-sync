@@ -31,7 +31,7 @@ hostname = "localhost"
 port = 5432
 
 [client]
-ipcPath = "IPCPATH/geth.ipc"
+rpcPath = "IPCPATH/geth.ipc"
 `)
 
 var _ = Describe("Loading the config", func() {
@@ -48,7 +48,7 @@ var _ = Describe("Loading the config", func() {
 		Expect(testConfig.Get("database.hostname")).To(Equal("localhost"))
 		Expect(testConfig.Get("database.name")).To(Equal("dbname"))
 		Expect(testConfig.Get("database.port")).To(Equal(int64(5432)))
-		Expect(testConfig.Get("client.ipcpath")).To(Equal("IPCPATH/geth.ipc"))
+		Expect(testConfig.Get("client.rpcPath")).To(Equal("IPCPATH/geth.ipc"))
 	})
 
 })
