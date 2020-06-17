@@ -173,6 +173,7 @@ var _ = Describe("Block header repository", func() {
 				Timestamp:   timestamp,
 			}
 			_, err = repoTwo.CreateOrUpdateHeader(headerTwo)
+			Expect(err).NotTo(HaveOccurred())
 			headerThree := core.Header{
 				BlockNumber: header.BlockNumber,
 				Hash:        common.BytesToHash([]byte{1, 1, 1, 1, 1}).Hex(),

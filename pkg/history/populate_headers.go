@@ -60,7 +60,7 @@ func RetrieveAndUpdateHeaders(fetcher core.Fetcher, headerRepository core.Header
 			return 0, err
 		}
 	}
-	return len(blockNumbers), nil
+	return len(headers), err
 }
 
 func getBlockRangeString(blockRange []int64) string {
