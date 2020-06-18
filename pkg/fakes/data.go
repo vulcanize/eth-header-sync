@@ -17,12 +17,10 @@
 package fakes
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -31,7 +29,6 @@ import (
 )
 
 var (
-	FakeAddress   = common.HexToAddress("0x" + RandomString(40))
 	FakeError     = errors.New("failed")
 	FakeHash      = common.BytesToHash([]byte{1, 2, 3, 4, 5})
 	fakeTimestamp = rand.Int63n(1500000000)
@@ -42,33 +39,4 @@ var FakeHeader = core.Header{
 	Hash:      FakeHash.String(),
 	Raw:       rawFakeHeader,
 	Timestamp: strconv.FormatInt(fakeTimestamp, 10),
-}
-
-func GetFakeHeader(blockNumber int64) core.Header {
-	return GetFakeHeaderWithTimestamp(fakeTimestamp, blockNumber)
-}
-
-func GetFakeHeaderWithTimestamp(timestamp, blockNumber int64) core.Header {
-	return core.Header{
-		Hash:        FakeHash.String(),
-		BlockNumber: blockNumber,
-		Raw:         rawFakeHeader,
-		Timestamp:   strconv.FormatInt(timestamp, 10),
-	}
-}
-
-var fakeTransaction types.Transaction
-var rawTransaction bytes.Buffer
-var _ = fakeTransaction.EncodeRLP(&rawTransaction)
-
-func RandomString(length int) string {
-	var seededRand = rand.New(
-		rand.NewSource(time.Now().UnixNano()))
-	charset := "abcdef1234567890"
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[seededRand.Intn(len(charset))]
-	}
-
-	return string(b)
 }

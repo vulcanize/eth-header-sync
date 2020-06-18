@@ -25,8 +25,8 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 	"github.com/vulcanize/eth-header-sync/pkg/fetcher"
 	"github.com/vulcanize/eth-header-sync/pkg/history"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 	"github.com/vulcanize/eth-header-sync/pkg/repository"
-	"github.com/vulcanize/eth-header-sync/utils"
 )
 
 // syncCmd represents the sync command
@@ -73,14 +73,17 @@ func backFillAllHeaders(fetcher core.Fetcher, headerRepository core.HeaderReposi
 func sync() {
 	ticker := time.NewTicker(pollingInterval)
 	defer ticker.Stop()
-	blockChain := getFetcher()
-	validateArgs(blockChain)
-	db := utils.LoadPostgres(databaseConfig, blockChain.Node())
+	f := getFetcher()
+	validateArgs(f)
+	db, err := postgres.NewDB(databaseConfig, f.Node())
+	if err != nil {
+		logWithCommand.Fatal(err)
+	}
 
-	headerRepository := repository.NewHeaderRepository(&db)
-	validator := history.NewHeaderValidator(blockChain, headerRepository, validationWindow)
+	headerRepository := repository.NewHeaderRepository(db)
+	validator := history.NewHeaderValidator(f, headerRepository, validationWindow)
 	missingBlocksPopulated := make(chan int)
-	go backFillAllHeaders(blockChain, headerRepository, missingBlocksPopulated, startingBlockNumber)
+	go backFillAllHeaders(f, headerRepository, missingBlocksPopulated, startingBlockNumber)
 
 	for {
 		select {
@@ -94,13 +97,13 @@ func sync() {
 			if n == 0 {
 				time.Sleep(3 * time.Second)
 			}
-			go backFillAllHeaders(blockChain, headerRepository, missingBlocksPopulated, startingBlockNumber)
+			go backFillAllHeaders(f, headerRepository, missingBlocksPopulated, startingBlockNumber)
 		}
 	}
 }
 
-func validateArgs(fetcher *fetcher.Fetcher) {
-	lastBlock, err := fetcher.LastBlock()
+func validateArgs(f *fetcher.Fetcher) {
+	lastBlock, err := f.LastBlock()
 	if err != nil {
 		logWithCommand.Error("validateArgs: Error getting last block: ", err)
 	}
