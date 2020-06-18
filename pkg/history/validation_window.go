@@ -24,15 +24,18 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
+// ValidationWindow represent the range of headers we validate at the header of the chain
 type ValidationWindow struct {
 	LowerBound int64
 	UpperBound int64
 }
 
+// Size returns the size of the validation window
 func (window ValidationWindow) Size() int {
 	return int(window.UpperBound - window.LowerBound)
 }
 
+// MakeValidationWindow returns a validation window for the provided fetcher and window size
 func MakeValidationWindow(fetcher core.Fetcher, windowSize int) (ValidationWindow, error) {
 	upperBound, err := fetcher.LastBlock()
 	if err != nil {
@@ -43,6 +46,7 @@ func MakeValidationWindow(fetcher core.Fetcher, windowSize int) (ValidationWindo
 	return ValidationWindow{lowerBound, upperBound.Int64()}, nil
 }
 
+// MakeRange creates a range from a min and max, exported for testing purposes
 func MakeRange(min, max int64) []int64 {
 	a := make([]int64, max-min+1)
 	for i := range a {
@@ -51,6 +55,7 @@ func MakeRange(min, max int64) []int64 {
 	return a
 }
 
+// GetString returns a string describing the current validation window
 func (window ValidationWindow) GetString() string {
 	return fmt.Sprintf("Validating Blocks |%v|-- Validation Window --|%v|",
 		window.LowerBound, window.UpperBound)

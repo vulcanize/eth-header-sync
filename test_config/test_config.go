@@ -19,8 +19,6 @@ package test_config
 import (
 	"errors"
 	"fmt"
-	"os"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -32,11 +30,9 @@ import (
 var TestConfig *viper.Viper
 var DBConfig config.Database
 var TestClient config.Client
-var ABIFilePath string
 
 func init() {
 	setTestConfig()
-	setABIPath()
 }
 
 func setTestConfig() {
@@ -47,7 +43,7 @@ func setTestConfig() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
-	ipc := TestConfig.GetString("client.ipcPath")
+	ipc := TestConfig.GetString("client.rpcPath")
 
 	// If we don't have an ipc path in the config file, check the env variable
 	if ipc == "" {
@@ -68,15 +64,11 @@ func setTestConfig() {
 		Port:     port,
 	}
 	TestClient = config.Client{
-		IPCPath: ipc,
+		RPCPath: ipc,
 	}
 }
 
-func setABIPath() {
-	gp := os.Getenv("GOPATH")
-	ABIFilePath = gp + "/src/github.com/vulcanize/eth-header-sync/pkg/eth/testing/"
-}
-
+// NewTestDB returns a new database connection pool object for testing purposes
 func NewTestDB(node core.Node) *postgres.DB {
 	db, err := postgres.NewDB(DBConfig, node)
 	if err != nil {
@@ -85,13 +77,14 @@ func NewTestDB(node core.Node) *postgres.DB {
 	return db
 }
 
+// CleanTestDB removes any of the data inserted into the test db during testing
 func CleanTestDB(db *postgres.DB) {
 	// can't delete from nodes since this function is called after the required node is persisted
 	db.MustExec("DELETE FROM goose_db_version")
 	db.MustExec("DELETE FROM headers")
 }
 
-// Returns a new test node, with the same ID
+// NewTestNode returns a new test node, with preconfigured params
 func NewTestNode() core.Node {
 	return core.Node{
 		GenesisBlock: "GENESIS",

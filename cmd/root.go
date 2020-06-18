@@ -49,12 +49,13 @@ const (
 )
 
 var rootCmd = &cobra.Command{
-	Use:              "vulcanizedb",
+	Use:              "eth-header-sync",
 	PersistentPreRun: initFuncs,
 }
 
+// Execute begins execution of the command
 func Execute() {
-	log.Info("----- Starting vDB -----")
+	log.Info("----- Starting eth-header-sync -----")
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +120,7 @@ func init() {
 	rootCmd.PersistentFlags().String("database-hostname", "localhost", "database hostname")
 	rootCmd.PersistentFlags().String("database-user", "", "database user")
 	rootCmd.PersistentFlags().String("database-password", "", "database password")
-	rootCmd.PersistentFlags().String("client-ipcPath", "", "location of geth.ipc file")
+	rootCmd.PersistentFlags().String("client-rpcPath", "", "path for calling eth http rpc endpoints")
 	rootCmd.PersistentFlags().String("log-level", log.InfoLevel.String(), "Log level (trace, debug, info, warn, error, fatal, panic")
 
 	viper.BindPFlag("logfile", rootCmd.PersistentFlags().Lookup("logfile"))
@@ -128,7 +129,7 @@ func init() {
 	viper.BindPFlag("database.hostname", rootCmd.PersistentFlags().Lookup("database-hostname"))
 	viper.BindPFlag("database.user", rootCmd.PersistentFlags().Lookup("database-user"))
 	viper.BindPFlag("database.password", rootCmd.PersistentFlags().Lookup("database-password"))
-	viper.BindPFlag("client.ipcPath", rootCmd.PersistentFlags().Lookup("client-ipcPath"))
+	viper.BindPFlag("client.rpcPath", rootCmd.PersistentFlags().Lookup("client-rpcPath"))
 	viper.BindPFlag("log.level", rootCmd.PersistentFlags().Lookup("log-level"))
 }
 
@@ -147,9 +148,8 @@ func initConfig() {
 
 func getFetcher() *fetcher.Fetcher {
 	rpcClient, ethClient := getClients()
-	vdbEthClient := client.NewEthClient(ethClient)
 	vdbNode := node.MakeNode(rpcClient)
-	return fetcher.NewFetcher(vdbEthClient, rpcClient, vdbNode)
+	return fetcher.NewFetcher(ethClient, rpcClient, vdbNode)
 }
 
 func getClients() (client.RPCClient, *ethclient.Client) {

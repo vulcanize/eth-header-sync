@@ -25,12 +25,14 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
+// DB is a wrapper around the sqlx.DB which associates node information with the connection pool
 type DB struct {
 	*sqlx.DB
 	Node   core.Node
 	NodeID int64
 }
 
+// NewDB returns a new DB for the provided database config and node info
 func NewDB(databaseConfig config.Database, node core.Node) (*DB, error) {
 	connectString := config.DbConnectionString(databaseConfig)
 	db, connectErr := sqlx.Connect("postgres", connectString)
@@ -55,6 +57,7 @@ func NewDB(databaseConfig config.Database, node core.Node) (*DB, error) {
 	return &pg, nil
 }
 
+// CreateNode inserts the node info into the database
 func (db *DB) CreateNode(node *core.Node) error {
 	var nodeID int64
 	err := db.QueryRow(

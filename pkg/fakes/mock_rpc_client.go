@@ -31,7 +31,7 @@ import (
 
 type MockRPCClient struct {
 	callContextErr      error
-	ipcPath             string
+	rpcPath             string
 	nodeType            core.NodeType
 	passedContext       context.Context
 	passedMethod        string
@@ -69,8 +69,8 @@ func NewMockRPCClient() *MockRPCClient {
 	return &MockRPCClient{}
 }
 
-func (client *MockRPCClient) SetIpcPath(ipcPath string) {
-	client.ipcPath = ipcPath
+func (client *MockRPCClient) SetRPCPath(rpcPath string) {
+	client.rpcPath = rpcPath
 }
 
 func (client *MockRPCClient) BatchCall(batch []client.BatchElem) error {
@@ -139,8 +139,8 @@ func (client *MockRPCClient) CallContext(ctx context.Context, result interface{}
 	return nil
 }
 
-func (client *MockRPCClient) IpcPath() string {
-	return client.ipcPath
+func (client *MockRPCClient) RPCPath() string {
+	return client.rpcPath
 }
 
 func (client *MockRPCClient) SupportedModules() (map[string]string, error) {

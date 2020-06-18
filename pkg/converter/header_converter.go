@@ -27,6 +27,7 @@ import (
 
 type HeaderConverter struct{}
 
+// Convert converts a go-ethereum header type to our internal header type
 func (converter HeaderConverter) Convert(gethHeader *types.Header, blockHash string) core.Header {
 	rawHeader, err := json.Marshal(gethHeader)
 	if err != nil {

@@ -1,31 +1,31 @@
-# Vulcanize DB
+# eth-header-sync
 
-[![Build Status](https://travis-ci.org/vulcanize/vulcanizedb.svg?branch=master)](https://travis-ci.org/vulcanize/vulcanizedb)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vulcanize/eth-header-sync)](https://goreportcard.com/report/github.com/vulcanize/eth-header-sync)
 
-> Vulcanize DB is a set of tools that make it easier for developers to write application-specific indexes and caches for dapps built on Ethereum.
+> Tool for syncing Ethereum headers into a Postgres database
 
-
-## Table of Contents
+## Table of Contents 
 1. [Background](#background)
 1. [Install](#install)
 1. [Usage](#usage)
 1. [Contributing](#contributing)
 1. [License](#license)
 
-
 ## Background
-The same data structures and encodings that make Ethereum an effective and trust-less distributed virtual machine
-complicate data accessibility and usability for dApp developers. VulcanizeDB improves Ethereum data accessibility by
-providing a suite of tools to ease the extraction and transformation of data into a more useful state, including
-allowing for exposing aggregate data from a suite of smart contracts.
+Ethereum data is natively stored in key-value databases such as leveldb (geth) and rocksdb (openethereum).
+Storage of Ethereum in these KV databases is optimized for scalability and ideal for the purposes of consensus,
+it is not necessarily ideal for use by external applications. Moving Ethereum data into a relational database can provide
+many advantages for downstream data consumers.
 
-VulanizeDB includes processes that sync, transform and expose data. Syncing involves
-querying an Ethereum node and then persisting core data into a Postgres database. Transforming focuses on using previously synced data to
-query for and transform log event and storage data for specifically configured smart contract addresses. Exposing data is a matter of getting
-data from VulcanizeDB's underlying Postgres database and making it accessible.
+This tool syncs Ethereum headers in Postgres. Addtionally, it validates headers from the last 15 blocks to ensure the data is up to date and
+handles chain reorgs by validating the most recent blocks' hashes and upserting invalid header records.
 
-![VulcanizeDB Overview Diagram](documentation/diagrams/vdb-overview.png)
+This is useful when you want a minimal baseline from which to track and hash-link targeted data on the blockchain (e.g. individual smart contract storage values or event logs).
+Some examples of this are the [eth-contract-watcher]() and [eth-account-watcher]().
+
+Headers are fetched by RPC queries to the standard `eth_getBlockByNumber` JSON-RPC endpoint, headers can be synced from anything
+that supports this endpoint.
+
 
 ## Install
 
@@ -38,8 +38,8 @@ data from VulcanizeDB's underlying Postgres database and making it accessible.
  - Go 1.12+
  - Postgres 11.2
  - Ethereum Node
-   - [Go Ethereum](https://ethereum.github.io/go-ethereum/downloads/) (1.8.23+)
-   - [Parity 1.8.11+](https://github.com/paritytech/parity/releases)
+   - [Go Ethereum](https://github.com/ethereum/go-ethereum/releases) (1.8.23+)
+   - [Open Ethereum](https://github.com/openethereum/openethereum/releases) (1.8.11+)
 
 ### Building the project
 Download the codebase to your local `GOPATH` via:
@@ -81,8 +81,8 @@ localhost. To allow access on Ubuntu, set localhost connections via hostname, ip
 
 ### Configuring a synced Ethereum node
 - To use a local Ethereum node, copy `environments/public.toml.example` to
-  `environments/public.toml` and update the `ipcPath` and `levelDbPath`.
-  - `ipcPath` should match the local node's IPC filepath:
+  `environments/public.toml` and update the `rpcPath` in the config file.
+  - `rpcPath` should match the local node's IPC filepath:
       - For Geth:
         - The IPC file is called `geth.ipc`.
         - The geth IPC file path is printed to the console when you start geth.
@@ -90,57 +90,40 @@ localhost. To allow access on Ubuntu, set localhost connections via hostname, ip
           - Mac: `<full home path>/Library/Ethereum/geth.ipc`
           - Linux: `<full home path>/ethereum/geth.ipc`
         - Note: the geth.ipc file may not exist until you've started the geth process
+        - The default localhost HTTP URL is "http://127.0.0.1:8545"
 
-      - For Parity:
+      - For OpenEthereum:
         - The IPC file is called `jsonrpc.ipc`.
         - The default location is:
           - Mac: `<full home path>/Library/Application\ Support/io.parity.ethereum/`
           - Linux: `<full home path>/local/share/io.parity.ethereum/`
 
-  - `levelDbPath` should match Geth's chaindata directory path.
-      - The geth LevelDB chaindata path is printed to the console when you start geth.
-      - The default location is:
-          - Mac: `<full home path>/Library/Ethereum/geth/chaindata`
-          - Linux: `<full home path>/ethereum/geth/chaindata`
-      - `levelDbPath` is irrelevant (and `coldImport` is currently unavailable) if only running parity.
-
+- To use a remote Ethereum node, simply set the `rpcPath` in the config file to the HTTP RPC endpoint url for the remote node
+    - The default HTTP port # for Geth and OpenEthereum is 8545
 
 ## Usage
-As mentioned above, VulcanizeDB's processes can be split into three categories: syncing, transforming and exposing data.
+`./eth-header-sync sync --config <config.toml> --starting-block-number <block-number>`
 
-### Data syncing
-To provide data for transformations, raw Ethereum data must first be synced into VulcanizeDB.
-This is accomplished through the use of the `headerSync` command.
-These commands are described in detail [here](documentation/data-syncing.md).
+The config file must be formatted as follows, and should contain an RPC path to a running Ethereum node:
 
-### Data transformation
-Data transformation uses the raw data that has been synced into Postgres to filter out and apply transformations to
-specific data of interest. Since there are different types of data that may be useful for observing smart contracts, it
-follows that there are different ways to transform this data. We've started by categorizing this into Generic and
-Custom transformers:
+```toml
+[database]
+    name     = "vulcanize_public"
+    hostname = "localhost"
+    user     = "postgres"
+    password = ""
+    port     = 5432
 
-- Generic Contract Transformer: Generic contract transformation can be done using a built-in command,
-`contractWatcher`, which transforms contract events provided the contract's ABI is available. It also
-provides some state variable coverage by automating polling of public methods, with some restrictions.
-`contractWatcher` is described further [here](documentation/generic-transformer.md).
-
-- Custom Transformers: In many cases custom transformers will need to be written to provide
-more comprehensive coverage of contract data. In this case we have provided the `compose`, `execute`, and
-`composeAndExecute` commands for running custom transformers from external repositories. Documentation on how to write,
-build and run custom transformers as Go plugins can be found
-[here](documentation/custom-transformers.md).
-
-### Exposing the data
-[Postgraphile](https://www.graphile.org/postgraphile/) is used to expose GraphQL endpoints for our database schemas, this is described in detail [here](documentation/postgraphile.md).
+[client]
+    rpcPath  = "http://127.0.0.1:8545"
+```
 
 
-### Tests
-- Replace the empty `ipcPath` in the `environments/testing.toml` with a path to a full node's eth_jsonrpc endpoint (e.g. local geth node ipc path or infura url)
-    - Note: must be mainnet
-    - Note: integration tests require configuration with an archival node
-- `make test` will run the unit tests and skip the integration tests
-- `make integrationtest` will run just the integration tests
-- `make test` and `make integrationtest` setup a clean `vulcanize_testing` db
+## Maintainers
+@vulcanize
+@AFDudley
+@i-norden
+
 
 
 ## Contributing
@@ -148,7 +131,6 @@ Contributions are welcome!
 
 VulcanizeDB follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/1/4/code-of-conduct).
 
-For more information on contributing, please see [here](documentation/contributing.md).
 
 ## License
 [AGPL-3.0](LICENSE) © Vulcanize Inc

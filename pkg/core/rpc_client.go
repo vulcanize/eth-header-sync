@@ -24,10 +24,11 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/client"
 )
 
+// RPCClient is the top level interface for an Ethereum RPC client
 type RPCClient interface {
 	CallContext(ctx context.Context, result interface{}, method string, args ...interface{}) error
 	BatchCall(batch []client.BatchElem) error
-	IpcPath() string
+	RPCPath() string
 	SupportedModules() (map[string]string, error)
 	Subscribe(namespace string, payloadChan interface{}, args ...interface{}) (*rpc.ClientSubscription, error)
 }

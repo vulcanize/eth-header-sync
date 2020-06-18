@@ -25,6 +25,7 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/repository"
 )
 
+// PopulateMissingHeaders populates missing headers in the database, it does so by finding block numbers where no header record exists
 func PopulateMissingHeaders(fetcher core.Fetcher, headerRepository core.HeaderRepository, startingBlockNumber int64) (int, error) {
 	lastBlock, err := fetcher.LastBlock()
 	if err != nil {
@@ -49,6 +50,7 @@ func PopulateMissingHeaders(fetcher core.Fetcher, headerRepository core.HeaderRe
 	return len(blockNumbers), nil
 }
 
+// RetrieveAndUpdateHeaders fetches the headers for the provided block numbers and upserts them into the Postgres database
 func RetrieveAndUpdateHeaders(fetcher core.Fetcher, headerRepository core.HeaderRepository, blockNumbers []int64) (int, error) {
 	headers, err := fetcher.GetHeadersByNumbers(blockNumbers)
 	for _, header := range headers {
@@ -60,7 +62,7 @@ func RetrieveAndUpdateHeaders(fetcher core.Fetcher, headerRepository core.Header
 			return 0, err
 		}
 	}
-	return len(blockNumbers), nil
+	return len(headers), err
 }
 
 func getBlockRangeString(blockRange []int64) string {

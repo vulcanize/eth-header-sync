@@ -25,6 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+// EthClient is a top level interface for an ethereum client
 type EthClient interface {
 	BlockByNumber(ctx context.Context, number *big.Int) (*types.Block, error)
 	CallContract(ctx context.Context, msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)

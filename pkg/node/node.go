@@ -87,10 +87,10 @@ func getNodeType(client core.RPCClient) core.NodeType {
 	// This heuristics for figuring out the node type are not useful...
 	// for example we often port forward remote nodes to localhost
 	// and geth does not have to expose the admin api...
-	if strings.Contains(client.IpcPath(), "infura") {
+	if strings.Contains(client.RPCPath(), "infura") {
 		return core.INFURA
 	}
-	if strings.Contains(client.IpcPath(), "127.0.0.1") || strings.Contains(client.IpcPath(), "localhost") {
+	if strings.Contains(client.RPCPath(), "127.0.0.1") || strings.Contains(client.RPCPath(), "localhost") {
 		return core.GANACHE
 	}
 	modules, _ := client.SupportedModules()

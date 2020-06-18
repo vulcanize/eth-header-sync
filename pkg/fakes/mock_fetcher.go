@@ -19,34 +19,13 @@ package fakes
 import (
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
-
-	"github.com/ethereum/go-ethereum"
-	"github.com/ethereum/go-ethereum/core/types"
-	. "github.com/onsi/gomega"
-
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
 type MockFetcher struct {
-	fetchContractDataErr               error
-	fetchContractDataPassedAbi         string
-	fetchContractDataPassedAddress     string
-	fetchContractDataPassedMethod      string
-	fetchContractDataPassedMethodArgs  []interface{}
-	fetchContractDataPassedResult      interface{}
-	fetchContractDataPassedBlockNumber int64
-	getBlockByNumberErr                error
-	GetTransactionsCalled              bool
-	GetTransactionsError               error
-	GetTransactionsPassedHashes        []common.Hash
-	logQuery                           ethereum.FilterQuery
-	logQueryErr                        error
-	logQueryReturnLogs                 []types.Log
-	lastBlock                          *big.Int
-	node                               core.Node
-	accountBalanceReturnValue          *big.Int
-	getAccountBalanceErr               error
+	getBlockByNumberErr error
+	lastBlock           *big.Int
+	node                core.Node
 }
 
 func NewMockFetcher() *MockFetcher {
@@ -55,39 +34,8 @@ func NewMockFetcher() *MockFetcher {
 	}
 }
 
-func (fetcher *MockFetcher) SetFetchContractDataErr(err error) {
-	fetcher.fetchContractDataErr = err
-}
-
 func (fetcher *MockFetcher) SetLastBlock(blockNumber *big.Int) {
 	fetcher.lastBlock = blockNumber
-}
-
-func (fetcher *MockFetcher) SetGetBlockByNumberErr(err error) {
-	fetcher.getBlockByNumberErr = err
-}
-
-func (fetcher *MockFetcher) SetGetEthLogsWithCustomQueryErr(err error) {
-	fetcher.logQueryErr = err
-}
-
-func (fetcher *MockFetcher) SetGetEthLogsWithCustomQueryReturnLogs(logs []types.Log) {
-	fetcher.logQueryReturnLogs = logs
-}
-
-func (fetcher *MockFetcher) FetchContractData(abiJSON string, address string, method string, methodArgs []interface{}, result interface{}, blockNumber int64) error {
-	fetcher.fetchContractDataPassedAbi = abiJSON
-	fetcher.fetchContractDataPassedAddress = address
-	fetcher.fetchContractDataPassedMethod = method
-	fetcher.fetchContractDataPassedMethodArgs = methodArgs
-	fetcher.fetchContractDataPassedResult = result
-	fetcher.fetchContractDataPassedBlockNumber = blockNumber
-	return fetcher.fetchContractDataErr
-}
-
-func (fetcher *MockFetcher) GetEthLogsWithCustomQuery(query ethereum.FilterQuery) ([]types.Log, error) {
-	fetcher.logQuery = query
-	return fetcher.logQueryReturnLogs, fetcher.logQueryErr
 }
 
 func (fetcher *MockFetcher) GetHeaderByNumber(blockNumber int64) (core.Header, error) {
@@ -103,41 +51,10 @@ func (fetcher *MockFetcher) GetHeadersByNumbers(blockNumbers []int64) ([]core.He
 	return headers, nil
 }
 
-func (fetcher *MockFetcher) CallContract(contractHash string, input []byte, blockNumber *big.Int) ([]byte, error) {
-	return []byte{}, nil
-}
-
 func (fetcher *MockFetcher) LastBlock() (*big.Int, error) {
 	return fetcher.lastBlock, nil
 }
 
 func (fetcher *MockFetcher) Node() core.Node {
 	return fetcher.node
-}
-
-func (fetcher *MockFetcher) AssertFetchContractDataCalledWith(abiJSON string, address string, method string, methodArgs []interface{}, result interface{}, blockNumber int64) {
-	Expect(fetcher.fetchContractDataPassedAbi).To(Equal(abiJSON))
-	Expect(fetcher.fetchContractDataPassedAddress).To(Equal(address))
-	Expect(fetcher.fetchContractDataPassedMethod).To(Equal(method))
-	if methodArgs != nil {
-		Expect(fetcher.fetchContractDataPassedMethodArgs).To(Equal(methodArgs))
-	}
-	Expect(fetcher.fetchContractDataPassedResult).To(BeAssignableToTypeOf(result))
-	Expect(fetcher.fetchContractDataPassedBlockNumber).To(Equal(blockNumber))
-}
-
-func (fetcher *MockFetcher) AssertGetEthLogsWithCustomQueryCalledWith(query ethereum.FilterQuery) {
-	Expect(fetcher.logQuery).To(Equal(query))
-}
-
-func (fetcher *MockFetcher) SetGetAccountBalanceErr(err error) {
-	fetcher.getAccountBalanceErr = err
-}
-
-func (fetcher *MockFetcher) SetGetAccountBalance(balance *big.Int) {
-	fetcher.accountBalanceReturnValue = balance
-}
-
-func (fetcher *MockFetcher) GetAccountBalance(address common.Address, blockNumber *big.Int) (*big.Int, error) {
-	return fetcher.accountBalanceReturnValue, fetcher.getAccountBalanceErr
 }

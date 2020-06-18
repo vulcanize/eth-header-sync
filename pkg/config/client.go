@@ -16,6 +16,7 @@
 
 package config
 
+// Client holds configuraiton information for the eth client
 type Client struct {
-	IPCPath string
+	RPCPath string
 }

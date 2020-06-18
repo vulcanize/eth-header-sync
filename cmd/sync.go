@@ -25,8 +25,8 @@ import (
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 	"github.com/vulcanize/eth-header-sync/pkg/fetcher"
 	"github.com/vulcanize/eth-header-sync/pkg/history"
+	"github.com/vulcanize/eth-header-sync/pkg/postgres"
 	"github.com/vulcanize/eth-header-sync/pkg/repository"
-	"github.com/vulcanize/eth-header-sync/utils"
 )
 
 // syncCmd represents the sync command
@@ -36,7 +36,7 @@ var syncCmd = &cobra.Command{
 	Long: `Syncs VulcanizeDB with local ethereum node. Populates
 Postgres with block headers.
 
-./vulcanizedb sync --starting-block-number 0 --config public.toml
+./eth-header-sync sync --starting-block-number 0 --config public.toml
 
 Expects ethereum node to be running and requires a .toml config:
 
@@ -46,7 +46,7 @@ Expects ethereum node to be running and requires a .toml config:
   port = 5432
 
   [client]
-  ipcPath = "/Users/user/Library/Ethereum/geth.ipc"
+  rpcPath = "/Users/user/Library/Ethereum/geth.ipc"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		subCommand = cmd.CalledAs()
@@ -73,14 +73,17 @@ func backFillAllHeaders(fetcher core.Fetcher, headerRepository core.HeaderReposi
 func sync() {
 	ticker := time.NewTicker(pollingInterval)
 	defer ticker.Stop()
-	blockChain := getFetcher()
-	validateArgs(blockChain)
-	db := utils.LoadPostgres(databaseConfig, blockChain.Node())
+	f := getFetcher()
+	validateArgs(f)
+	db, err := postgres.NewDB(databaseConfig, f.Node())
+	if err != nil {
+		logWithCommand.Fatal(err)
+	}
 
-	headerRepository := repository.NewHeaderRepository(&db)
-	validator := history.NewHeaderValidator(blockChain, headerRepository, validationWindow)
+	headerRepository := repository.NewHeaderRepository(db)
+	validator := history.NewHeaderValidator(f, headerRepository, validationWindow)
 	missingBlocksPopulated := make(chan int)
-	go backFillAllHeaders(blockChain, headerRepository, missingBlocksPopulated, startingBlockNumber)
+	go backFillAllHeaders(f, headerRepository, missingBlocksPopulated, startingBlockNumber)
 
 	for {
 		select {
@@ -94,13 +97,13 @@ func sync() {
 			if n == 0 {
 				time.Sleep(3 * time.Second)
 			}
-			go backFillAllHeaders(blockChain, headerRepository, missingBlocksPopulated, startingBlockNumber)
+			go backFillAllHeaders(f, headerRepository, missingBlocksPopulated, startingBlockNumber)
 		}
 	}
 }
 
-func validateArgs(fetcher *fetcher.Fetcher) {
-	lastBlock, err := fetcher.LastBlock()
+func validateArgs(f *fetcher.Fetcher) {
+	lastBlock, err := f.LastBlock()
 	if err != nil {
 		logWithCommand.Error("validateArgs: Error getting last block: ", err)
 	}
