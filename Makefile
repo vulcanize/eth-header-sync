@@ -46,11 +46,13 @@ HOST_NAME = localhost
 PORT = 5432
 NAME =
 USER = postgres
-CONNECT_STRING=postgresql://$(USER)@$(HOST_NAME):$(PORT)/$(NAME)?sslmode=disable
+PASS =
+"postgresql://%s:%s@%s:%d/%s?sslmode=disable"
+CONNECT_STRING=postgresql://$(USER):$(PASS)@$(HOST_NAME):$(PORT)/$(NAME)?sslmode=disable
 
 #Test
 TEST_DB = vulcanize_testing
-TEST_CONNECT_STRING = postgresql://$(USER)@$(HOST_NAME):$(PORT)/$(TEST_DB)?sslmode=disable
+TEST_CONNECT_STRING = postgresql://$(USER):$(PASS)@$(HOST_NAME):$(PORT)/$(TEST_DB)?sslmode=disable
 
 .PHONY: test
 test: | $(GINKGO) $(LINT)
