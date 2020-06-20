@@ -179,7 +179,6 @@ func (fetcher *Fetcher) getPOWHeader(blockNumber int64) (header core.Header, err
 func (blockChain *Fetcher) getPOWHeaders(blockNumbers []int64) (headers []core.Header, err error) {
 	var batch []client.BatchElem
 	var POWHeaders [MAX_BATCH_SIZE]types.Header
-	includeTransactions := false
 
 	for index, blockNumber := range blockNumbers {
 
@@ -192,7 +191,7 @@ func (blockChain *Fetcher) getPOWHeaders(blockNumbers []int64) (headers []core.H
 		batchElem := client.BatchElem{
 			Method: "eth_getBlockByNumber",
 			Result: &POWHeaders[index],
-			Args:   []interface{}{blockNumberArg, includeTransactions},
+			Args:   []interface{}{blockNumberArg, false},
 		}
 
 		batch = append(batch, batchElem)
