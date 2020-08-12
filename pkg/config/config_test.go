@@ -39,7 +39,7 @@ var _ = Describe("Loading the config", func() {
 	It("reads the private config using the environment", func() {
 		viper.SetConfigName("config")
 		viper.AddConfigPath("$GOPATH/src/github.com/vulcanize/eth-header-sync/environments/")
-		Expect(viper.Get("client.ipcpath")).To(BeNil())
+		Expect(viper.Get("client.rpcPath")).To(BeNil())
 
 		testConfig := viper.New()
 		testConfig.SetConfigType("toml")

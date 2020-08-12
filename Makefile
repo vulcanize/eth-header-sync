@@ -47,7 +47,6 @@ PORT = 5432
 NAME =
 USER = postgres
 PASS =
-"postgresql://%s:%s@%s:%d/%s?sslmode=disable"
 CONNECT_STRING=postgresql://$(USER):$(PASS)@$(HOST_NAME):$(PORT)/$(NAME)?sslmode=disable
 
 #Test
