@@ -83,7 +83,7 @@ func initFuncs(cmd *cobra.Command, args []string) {
 }
 
 func setViperConfigs() {
-	ipc = viper.GetString("client.ipcpath")
+	ipc = viper.GetString("client.rpcPath")
 	databaseConfig = config.Database{
 		Name:     viper.GetString("database.name"),
 		Hostname: viper.GetString("database.hostname"),
