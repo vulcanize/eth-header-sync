@@ -1,0 +1,15 @@
+name: Docker Compose Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Run docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run docker build
+        run: make docker-build

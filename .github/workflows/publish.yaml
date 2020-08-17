@@ -16,5 +16,5 @@ jobs:
         with:
           username: vulcanizejenkins
           password: ${{ secrets.VULCANIZEJENKINS_PAT }}
-          repository: vulcanizejenkins/eth-header-sync
+          repository: vulcanize/eth-header-sync
           tag_with_ref: true

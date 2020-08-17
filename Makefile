@@ -97,4 +97,4 @@ migrate: $(GOOSE) checkdbvars
 ## Build docker image
 .PHONY: docker-build
 docker-build:
-	docker build -t vulcanizejenkins/eth-header-sync -f dockerfiles/Dockerfile .
+	docker build -t vulcanize/eth-header-sync -f Dockerfile .

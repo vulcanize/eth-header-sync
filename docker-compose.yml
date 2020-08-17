@@ -17,11 +17,11 @@ services:
     depends_on:
     - db
     build:
-      context: ./../
-      dockerfile: ./dockerfiles/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./geth.ipc:/geth.ipc
-      - ../environments/example.toml:/app/config.toml
+      - ./environments/example.toml:/app/config.toml
     environment:
       - STARTING_BLOCK_NUMBER=10564606
       - VDB_COMMAND=sync

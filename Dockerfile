@@ -21,6 +21,7 @@ WORKDIR /app
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/eth-header-sync eth-header-sync
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/environments/example.toml config.toml
 COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/db/migrations migrations/vulcanizedb
+COPY --from=builder /go/src/github.com/vulcanize/eth-header-sync/startup_script.sh .
 COPY --from=builder /goose goose
 
 CMD ["./startup_script.sh"]
