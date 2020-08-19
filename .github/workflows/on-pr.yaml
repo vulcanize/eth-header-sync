@@ -10,3 +10,12 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run docker build
         run: make docker-build
+      - name: Get the version
+        id: vars
+        run: echo ::set-output name=tag::$(echo ${GITHUB_SHA:0:7})
+      - name: Tag docker image
+        run: docker tag vulcanize/eth-header-sync docker.pkg.github.com/vulcanize/eth-header-sync/eth-header-sync:${{steps.vars.outputs.tag}}
+      - name: Docker Login
+        run: cat ${{ secrets.GITHUB_TOKEN }} | docker login https://docker.pkg.github.com -u vulcanize --password-stdin
+      - name: Docker Push
+        run: docker push docker.pkg.github.com/vulcanize/eth-header-sync/eth-header-sync:${{steps.vars.outputs.tag}}
