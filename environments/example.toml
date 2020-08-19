@@ -4,4 +4,4 @@
     port     = 5432
 
 [client]
-    rpcPath  = "http://127.0.0.1:8545"
+    rpcPath  = "/geth.ipc"
