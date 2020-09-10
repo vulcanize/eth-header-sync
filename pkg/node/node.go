@@ -17,152 +17,33 @@
 package node
 
 import (
-	"context"
-	"fmt"
-	"regexp"
-	"strconv"
-	"strings"
-
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/p2p"
-	log "github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 
 	"github.com/vulcanize/eth-header-sync/pkg/core"
 )
 
-type IPropertiesReader interface {
-	NodeInfo() (id string, name string)
-	NetworkID() float64
-	GenesisBlock() string
-}
+// Env variables
+const (
+	ETH_NODE_ID       = "ETH_NODE_ID"
+	ETH_CLIENT_NAME   = "ETH_CLIENT_NAME"
+	ETH_GENESIS_BLOCK = "ETH_GENESIS_BLOCK"
+	ETH_NETWORK_ID    = "ETH_NETWORK_ID"
+	ETH_CHAIN_ID      = "ETH_CHAIN_ID"
+)
 
-type PropertiesReader struct {
-	client core.RPCClient
-}
+// MakeNode makes a node info object from env variables
+func MakeNode() core.Node {
+	viper.BindEnv("ethereum.nodeID", ETH_NODE_ID)
+	viper.BindEnv("ethereum.clientName", ETH_CLIENT_NAME)
+	viper.BindEnv("ethereum.genesisBlock", ETH_GENESIS_BLOCK)
+	viper.BindEnv("ethereum.networkID", ETH_NETWORK_ID)
+	viper.BindEnv("ethereum.chainID", ETH_CHAIN_ID)
 
-type ParityClient struct {
-	PropertiesReader
-}
-
-type GethClient struct {
-	PropertiesReader
-}
-
-type InfuraClient struct {
-	PropertiesReader
-}
-
-type GanacheClient struct {
-	PropertiesReader
-}
-
-func MakeNode(rpcClient core.RPCClient) core.Node {
-	pr := makePropertiesReader(rpcClient)
-	id, name := pr.NodeInfo()
 	return core.Node{
-		GenesisBlock: pr.GenesisBlock(),
-		NetworkID:    fmt.Sprintf("%f", pr.NetworkID()),
-		ID:           id,
-		ClientName:   name,
+		ID:           viper.GetString("ethereum.nodeID"),
+		ClientName:   viper.GetString("ethereum.clientName"),
+		GenesisBlock: viper.GetString("ethereum.genesisBlock"),
+		NetworkID:    viper.GetString("ethereum.networkID"),
+		ChainID:      viper.GetUint64("ethereum.chainID"),
 	}
-}
-
-func makePropertiesReader(client core.RPCClient) IPropertiesReader {
-	switch getNodeType(client) {
-	case core.GETH:
-		return GethClient{PropertiesReader: PropertiesReader{client: client}}
-	case core.PARITY:
-		return ParityClient{PropertiesReader: PropertiesReader{client: client}}
-	case core.INFURA:
-		return InfuraClient{PropertiesReader: PropertiesReader{client: client}}
-	case core.GANACHE:
-		return GanacheClient{PropertiesReader: PropertiesReader{client: client}}
-	default:
-		return PropertiesReader{client: client}
-	}
-}
-
-func getNodeType(client core.RPCClient) core.NodeType {
-	// TODO: fix this
-	// This heuristics for figuring out the node type are not useful...
-	// for example we often port forward remote nodes to localhost
-	// and geth does not have to expose the admin api...
-	if strings.Contains(client.RPCPath(), "infura") {
-		return core.INFURA
-	}
-	if strings.Contains(client.RPCPath(), "127.0.0.1") || strings.Contains(client.RPCPath(), "localhost") {
-		return core.GANACHE
-	}
-	modules, _ := client.SupportedModules()
-	if _, ok := modules["admin"]; ok {
-		return core.GETH
-	}
-	return core.PARITY
-}
-
-func (reader PropertiesReader) NetworkID() float64 {
-	var version string
-	err := reader.client.CallContext(context.Background(), &version, "net_version")
-	if err != nil {
-		log.Error(err)
-	}
-	networkID, _ := strconv.ParseFloat(version, 64)
-	return networkID
-}
-
-func (reader PropertiesReader) GenesisBlock() string {
-	var header *types.Header
-	blockZero := "0x0"
-	includeTransactions := false
-	err := reader.client.CallContext(context.Background(), &header, "eth_getBlockByNumber", blockZero, includeTransactions)
-	if err != nil {
-		log.Error(err)
-	}
-	return header.Hash().Hex()
-}
-
-func (reader PropertiesReader) NodeInfo() (string, string) {
-	var info p2p.NodeInfo
-	err := reader.client.CallContext(context.Background(), &info, "admin_nodeInfo")
-	if err != nil {
-		log.Error(err)
-	}
-	return info.ID, info.Name
-}
-
-func (client ParityClient) NodeInfo() (string, string) {
-	nodeInfo := client.parityNodeInfo()
-	id := client.parityID()
-	return id, nodeInfo
-}
-
-func (client InfuraClient) NodeInfo() (string, string) {
-	return "infura", "infura"
-}
-
-func (client GanacheClient) NodeInfo() (string, string) {
-	return "ganache", "ganache"
-}
-
-func (client ParityClient) parityNodeInfo() string {
-	var nodeInfo core.ParityNodeInfo
-	err := client.client.CallContext(context.Background(), &nodeInfo, "parity_versionInfo")
-	if err != nil {
-		log.Error(err)
-	}
-	return nodeInfo.String()
-}
-
-func (client ParityClient) parityID() string {
-	var enodeID = regexp.MustCompile(`^enode://(.+)@.+$`)
-	var enodeURL string
-	err := client.client.CallContext(context.Background(), &enodeURL, "parity_enode")
-	if err != nil {
-		log.Error(err)
-	}
-	enode := enodeID.FindStringSubmatch(enodeURL)
-	if len(enode) < 2 {
-		return ""
-	}
-	return enode[1]
 }

@@ -148,7 +148,7 @@ func initConfig() {
 
 func getFetcher() *fetcher.Fetcher {
 	rpcClient, ethClient := getClients()
-	vdbNode := node.MakeNode(rpcClient)
+	vdbNode := node.MakeNode()
 	return fetcher.NewFetcher(ethClient, rpcClient, vdbNode)
 }
 

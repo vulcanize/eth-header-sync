@@ -37,8 +37,8 @@ var _ = Describe("Reading from the Geth blockchain", func() {
 		Expect(err).NotTo(HaveOccurred())
 		rpcClient := client.NewRPCClient(rawRPCClient, test_config.TestClient.RPCPath)
 		ethClient := ethclient.NewClient(rawRPCClient)
-		node := node.MakeNode(rpcClient)
-		fetch = fetcher.NewFetcher(ethClient, rpcClient, node)
+		n := node.MakeNode()
+		fetch = fetcher.NewFetcher(ethClient, rpcClient, n)
 	})
 
 	It("retrieves the genesis header and first header", func(done Done) {
