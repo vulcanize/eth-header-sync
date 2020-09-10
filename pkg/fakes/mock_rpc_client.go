@@ -115,18 +115,6 @@ func (client *MockRPCClient) CallContext(ctx context.Context, result interface{}
 		if client.callContextErr != nil {
 			return client.callContextErr
 		}
-	case "parity_versionInfo":
-		if p, ok := result.(*core.ParityNodeInfo); ok {
-			*p = core.ParityNodeInfo{
-				Track: "",
-				ParityVersion: core.ParityVersion{
-					Major: 1,
-					Minor: 2,
-					Patch: 3,
-				},
-				Hash: "",
-			}
-		}
 	case "parity_enode":
 		if p, ok := result.(*string); ok {
 			*p = "enode://ParityNode@172.17.0.1:30303"
