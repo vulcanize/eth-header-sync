@@ -21,8 +21,8 @@ import "fmt"
 const (
 	Major = 0       // Major version component of the current release
 	Minor = 1       // Minor version component of the current release
-	Patch = 2       // Patch version component of the current release
-	Meta  = "alpha" // Version metadata to append to the version string
+	Patch = 1       // Patch version component of the current release
+	Meta  = "" // Version metadata to append to the version string
 )
 
 // Version holds the textual version string.
