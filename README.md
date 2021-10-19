@@ -1,3 +1,5 @@
+⛔️ DEPRECATED: This repository is no longer maintained.
+
 # eth-header-sync
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/vulcanize/eth-header-sync)](https://goreportcard.com/report/github.com/vulcanize/eth-header-sync)
